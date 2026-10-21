@@ -1,0 +1,13 @@
+@model Управление_на_автопарк.Models.FuelLog
+@{ ViewData["Title"] = "Редакция на зареждане"; }
+<h1>Редакция на зареждане</h1>
+<form asp-action="Edit" method="post">
+ <input type="hidden" asp-for="FuelLogID" />
+ <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ <div class="mb-3"><label asp-for="VehicleID" class="form-label">Автомобил</label><select asp-for="VehicleID" asp-items="ViewBag.VehicleID" class="form-select"><option value="">-- Избери автомобил --</option></select><span asp-validation-for="VehicleID" class="text-danger"></span></div>
+ <div class="mb-3"><label asp-for="FuelDate" class="form-label">Дата и час</label><input asp-for="FuelDate" type="datetime-local" class="form-control" /><span asp-validation-for="FuelDate" class="text-danger"></span></div>
+ <div class="mb-3"><label asp-for="Litres" class="form-label">Литри</label><input asp-for="Litres" type="number" step="0.01" class="form-control" /><span asp-validation-for="Litres" class="text-danger"></span></div>
+ <div class="mb-3"><label asp-for="TotalCost" class="form-label">Обща сума</label><input asp-for="TotalCost" type="number" step="0.01" class="form-control" /><span asp-validation-for="TotalCost" class="text-danger"></span></div>
+ <button type="submit" class="btn btn-primary">Запази промените</button> <a asp-action="Index" class="btn btn-secondary">Назад</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

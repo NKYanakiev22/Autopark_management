@@ -1,0 +1,15 @@
+@model Управление_на_автопарк.Models.FuelLog
+@{ ViewData["Title"] = "Изтриване на зареждане"; }
+<h1>Изтриване на зареждане</h1>
+<p class="text-danger">Сигурни ли сте, че искате да изтриете този запис?</p>
+<dl class="row">
+ <dt class="col-sm-3">Автомобил</dt><dd class="col-sm-9">@Model.Vehicle?.RegistrationNumber</dd>
+ <dt class="col-sm-3">Дата и час</dt><dd class="col-sm-9">@Model.FuelDate.ToString("g")</dd>
+ <dt class="col-sm-3">Литри</dt><dd class="col-sm-9">@Model.Litres.ToString("N2")</dd>
+ <dt class="col-sm-3">Обща сума</dt><dd class="col-sm-9">@Model.TotalCost.ToString("C")</dd>
+</dl>
+<form asp-action="Delete" method="post">
+ <input type="hidden" asp-for="FuelLogID" />
+ <button type="submit" class="btn btn-danger">Изтрий</button>
+ <a asp-action="Index" class="btn btn-secondary">Отказ</a>
+</form>

@@ -1,0 +1,10 @@
+@model Управление_на_автопарк.Models.FuelLog
+@{ ViewData["Title"] = "Детайли за зареждане"; }
+<h1>Детайли за зареждане</h1>
+<dl class="row">
+ <dt class="col-sm-3">Автомобил</dt><dd class="col-sm-9">@Model.Vehicle?.RegistrationNumber</dd>
+ <dt class="col-sm-3">Дата и час</dt><dd class="col-sm-9">@Model.FuelDate.ToString("g")</dd>
+ <dt class="col-sm-3">Литри</dt><dd class="col-sm-9">@Model.Litres.ToString("N2")</dd>
+ <dt class="col-sm-3">Обща сума</dt><dd class="col-sm-9">@Model.TotalCost.ToString("C")</dd>
+</dl>
+<a asp-action="Edit" asp-route-id="@Model.FuelLogID" class="btn btn-primary">Редактирай</a> <a asp-action="Index" class="btn btn-secondary">Назад</a>

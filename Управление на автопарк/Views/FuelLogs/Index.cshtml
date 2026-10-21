@@ -1,0 +1,16 @@
+@model IEnumerable<Управление_на_автопарк.Models.FuelLog>
+@{ ViewData["Title"] = "Зареждания с гориво"; }
+<h1>Зареждания с гориво</h1>
+<p><a asp-action="Create" class="btn btn-primary">Добави зареждане</a></p>
+<table class="table table-striped">
+ <thead><tr><th>Автомобил</th><th>Дата</th><th>Литри</th><th>Обща сума</th><th></th></tr></thead>
+ <tbody>
+ @foreach (var item in Model) { <tr>
+  <td>@item.Vehicle?.RegistrationNumber</td><td>@item.FuelDate.ToString("g")</td>
+  <td>@item.Litres.ToString("N2")</td><td>@item.TotalCost.ToString("C")</td>
+  <td><a asp-action="Edit" asp-route-id="@item.FuelLogID">Редактирай</a> |
+      <a asp-action="Details" asp-route-id="@item.FuelLogID">Детайли</a> |
+      <a asp-action="Delete" asp-route-id="@item.FuelLogID">Изтрий</a></td>
+ </tr> }
+ </tbody>
+</table>

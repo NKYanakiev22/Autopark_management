@@ -7,4 +7,21 @@
         <RootNamespace>Управление_на_автопарк</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Views\Drivers\" />
+      <Folder Include="Views\Maintenance\" />
+      <Folder Include="Views\Routes\" />
+      <Folder Include="Views\Vehicles\" />
+    </ItemGroup>
+
 </Project>
