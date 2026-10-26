@@ -1,107 +1,100 @@
+using DriveOps.Data;
+using DriveOps.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Управление_на_автопарк.Data;
-using Управление_на_автопарк.Models;
 
-namespace Управление_на_автопарк.Controllers;
+namespace DriveOps.Controllers;
 
 [Authorize]
-public class FuelLogsController(FleetDbContext context) : Controller
+[AutoValidateAntiforgeryToken]
+public sealed class FuelLogsController(ApplicationDbContext context) : Controller
 {
     public async Task<IActionResult> Index()
     {
-        var logs = await context.FuelLogs.Include(f => f.Vehicle)
+        var entries = await context.FuelLogs.AsNoTracking().Include(f => f.Vehicle)
             .OrderByDescending(f => f.FuelDate).ToListAsync();
-        return View(logs);
+        return View(entries);
     }
 
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id is null) return NotFound();
-        var log = await context.FuelLogs.Include(f => f.Vehicle)
+        var entry = await context.FuelLogs.AsNoTracking().Include(f => f.Vehicle)
             .FirstOrDefaultAsync(f => f.FuelLogID == id);
-        return log is null ? NotFound() : View(log);
+        return entry is null ? NotFound() : View(entry);
     }
 
     public async Task<IActionResult> Create()
     {
         await LoadVehicles();
-        return View(new FuelLog { FuelDate = DateTime.Now });
+        return View(new FuelLog { FuelDate = DateTime.Today });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("VehicleID,FuelDate,Litres,TotalCost")] FuelLog log)
+    public async Task<IActionResult> Create(FuelLog entry)
     {
-        if (ModelState.IsValid)
-        {
-            context.Add(log);
-            await context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        await LoadVehicles(log.VehicleID);
-        return View(log);
-    }
-
-    public async Task<IActionResult> Edit(int? id)
-    {
-        if (id is null) return NotFound();
-        var log = await context.FuelLogs.FindAsync(id);
-        if (log is null) return NotFound();
-        await LoadVehicles(log.VehicleID);
-        return View(log);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("FuelLogID,VehicleID,FuelDate,Litres,TotalCost")] FuelLog log)
-    {
-        if (id != log.FuelLogID) return NotFound();
+        if (!await context.Vehicles.AnyAsync(v => v.VehicleID == entry.VehicleID))
+            ModelState.AddModelError(nameof(entry.VehicleID), "Select a valid vehicle.");
         if (!ModelState.IsValid)
         {
-            await LoadVehicles(log.VehicleID);
-            return View(log);
+            await LoadVehicles(entry.VehicleID);
+            return View(entry);
         }
-        try
-        {
-            context.Update(log);
-            await context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await context.FuelLogs.AnyAsync(f => f.FuelLogID == id)) return NotFound();
-            throw;
-        }
+        context.FuelLogs.Add(entry);
+        await context.SaveChangesAsync();
+        TempData["Success"] = "Fuel record added.";
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id is null) return NotFound();
-        var log = await context.FuelLogs.Include(f => f.Vehicle)
+        var entry = await context.FuelLogs.FindAsync(id);
+        if (entry is null) return NotFound();
+        await LoadVehicles(entry.VehicleID);
+        return View(entry);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, FuelLog entry)
+    {
+        if (id != entry.FuelLogID) return NotFound();
+        if (!await context.Vehicles.AnyAsync(vehicle => vehicle.VehicleID == entry.VehicleID))
+            ModelState.AddModelError(nameof(entry.VehicleID), "Select a valid vehicle.");
+        if (!ModelState.IsValid)
+        {
+            await LoadVehicles(entry.VehicleID);
+            return View(entry);
+        }
+        context.Update(entry);
+        await context.SaveChangesAsync();
+        TempData["Success"] = "Fuel record updated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        var entry = await context.FuelLogs.AsNoTracking().Include(f => f.Vehicle)
             .FirstOrDefaultAsync(f => f.FuelLogID == id);
-        return log is null ? NotFound() : View(log);
+        return entry is null ? NotFound() : View(entry);
     }
 
     [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var log = await context.FuelLogs.FindAsync(id);
-        if (log is not null)
+        var entry = await context.FuelLogs.FindAsync(id);
+        if (entry is not null)
         {
-            context.FuelLogs.Remove(log);
+            context.FuelLogs.Remove(entry);
             await context.SaveChangesAsync();
+            TempData["Success"] = "Fuel record deleted.";
         }
         return RedirectToAction(nameof(Index));
     }
 
     private async Task LoadVehicles(int? selectedId = null)
     {
-        ViewData["VehicleID"] = new SelectList(
-            await context.Vehicles.OrderBy(v => v.RegistrationNumber).ToListAsync(),
-            "VehicleID", "RegistrationNumber", selectedId);
+        var vehicles = await context.Vehicles.AsNoTracking().OrderBy(v => v.RegistrationNumber).ToListAsync();
+        ViewData["VehicleID"] = new SelectList(vehicles, "VehicleID", "RegistrationNumber", selectedId);
     }
 }

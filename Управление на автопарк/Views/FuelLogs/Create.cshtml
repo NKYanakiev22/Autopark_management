@@ -1,12 +1,3 @@
-@model Управление_на_автопарк.Models.FuelLog
-@{ ViewData["Title"] = "Добавяне на зареждане"; }
-<h1>Добавяне на зареждане</h1>
-<form asp-action="Create" method="post">
- <div asp-validation-summary="ModelOnly" class="text-danger"></div>
- <div class="mb-3"><label asp-for="VehicleID" class="form-label">Автомобил</label><select asp-for="VehicleID" asp-items="ViewBag.VehicleID" class="form-select"><option value="">-- Избери автомобил --</option></select><span asp-validation-for="VehicleID" class="text-danger"></span></div>
- <div class="mb-3"><label asp-for="FuelDate" class="form-label">Дата и час</label><input asp-for="FuelDate" type="datetime-local" class="form-control" /><span asp-validation-for="FuelDate" class="text-danger"></span></div>
- <div class="mb-3"><label asp-for="Litres" class="form-label">Литри</label><input asp-for="Litres" type="number" step="0.01" class="form-control" /><span asp-validation-for="Litres" class="text-danger"></span></div>
- <div class="mb-3"><label asp-for="TotalCost" class="form-label">Обща сума</label><input asp-for="TotalCost" type="number" step="0.01" class="form-control" /><span asp-validation-for="TotalCost" class="text-danger"></span></div>
- <button type="submit" class="btn btn-primary">Запази</button> <a asp-action="Index" class="btn btn-secondary">Назад</a>
-</form>
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+@model FuelLog
+@{ ViewData["Title"] = "Add fuel record"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet costs</div><h1>Add fuel record</h1><p>Record a refueling visit and its cost.</p></div></div><section class="card form-card"><form asp-action="Create" method="post"><div asp-validation-summary="ModelOnly" class="validation-summary"></div><div class="form-grid"><div class="form-field"><label asp-for="VehicleID"></label><select asp-for="VehicleID" asp-items="ViewBag.VehicleID"><option value="">Select a vehicle</option></select><span asp-validation-for="VehicleID" class="field-error"></span></div><div class="form-field"><label asp-for="FuelDate"></label><input asp-for="FuelDate" type="date" /><span asp-validation-for="FuelDate" class="field-error"></span></div><div class="form-field"><label asp-for="Litres"></label><input asp-for="Litres" step="0.01" /><span asp-validation-for="Litres" class="field-error"></span></div><div class="form-field"><label asp-for="TotalCost"></label><input asp-for="TotalCost" step="0.01" /><span asp-validation-for="TotalCost" class="field-error"></span></div></div><div class="form-actions"><a class="btn btn-secondary" asp-action="Index">Cancel</a><button class="btn btn-primary" type="submit">Save record</button></div></form></section>

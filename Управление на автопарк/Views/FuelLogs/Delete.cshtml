@@ -1,15 +1,3 @@
-@model Управление_на_автопарк.Models.FuelLog
-@{ ViewData["Title"] = "Изтриване на зареждане"; }
-<h1>Изтриване на зареждане</h1>
-<p class="text-danger">Сигурни ли сте, че искате да изтриете този запис?</p>
-<dl class="row">
- <dt class="col-sm-3">Автомобил</dt><dd class="col-sm-9">@Model.Vehicle?.RegistrationNumber</dd>
- <dt class="col-sm-3">Дата и час</dt><dd class="col-sm-9">@Model.FuelDate.ToString("g")</dd>
- <dt class="col-sm-3">Литри</dt><dd class="col-sm-9">@Model.Litres.ToString("N2")</dd>
- <dt class="col-sm-3">Обща сума</dt><dd class="col-sm-9">@Model.TotalCost.ToString("C")</dd>
-</dl>
-<form asp-action="Delete" method="post">
- <input type="hidden" asp-for="FuelLogID" />
- <button type="submit" class="btn btn-danger">Изтрий</button>
- <a asp-action="Index" class="btn btn-secondary">Отказ</a>
-</form>
+@model FuelLog
+@{ ViewData["Title"] = "Delete fuel record"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet costs</div><h1>Delete fuel record</h1><p>Confirm that this fuel record should be removed.</p></div></div><section class="card form-card"><div class="confirm-box"><h2>@Model.Vehicle?.RegistrationNumber</h2><p>@Model.FuelDate.ToString("MMM d, yyyy") · @Model.Litres.ToString("N2") L · @Model.TotalCost.ToString("C")</p></div><form asp-action="Delete" asp-route-id="@Model.FuelLogID" method="post" class="form-actions"><a class="btn btn-secondary" asp-action="Index">Cancel</a><button class="btn btn-danger" type="submit">Delete record</button></form></section>
