@@ -4,13 +4,14 @@ using DriveOps.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace DriveOps.Controllers;
 
 [Authorize]
 [AutoValidateAntiforgeryToken]
-public sealed class BookingsController(ApplicationDbContext context) : Controller
+public sealed class BookingsController(ApplicationDbContext context, UserManager<IdentityUser> userManager) : Controller
 {
     public async Task<IActionResult> Index()
     {
@@ -18,25 +19,51 @@ public sealed class BookingsController(ApplicationDbContext context) : Controlle
         if (!User.IsInRole("Admin"))
             query = query.Where(booking => booking.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        return View(await query.OrderByDescending(booking => booking.StartAt).ToListAsync());
+        var bookings = await query.OrderByDescending(booking => booking.StartAt).ToListAsync();
+        if (User.IsInRole("Admin"))
+        {
+            var userIds = bookings.Select(booking => booking.UserId).Distinct().ToList();
+            var submitters = new Dictionary<string, (string Name, string Email)>();
+            foreach (var userIdForBooking in userIds)
+            {
+                var user = await userManager.FindByIdAsync(userIdForBooking);
+                if (user is null) continue;
+                var claims = await userManager.GetClaimsAsync(user);
+                submitters[user.Id] = (claims.FirstOrDefault(claim => claim.Type == ClaimTypes.GivenName)?.Value ?? user.UserName ?? "Unknown user", user.Email ?? "");
+            }
+            ViewBag.Submitters = submitters;
+        }
+        return View(bookings);
     }
 
     [HttpGet]
     public async Task<IActionResult> Create(int? vehicleId)
     {
         await LoadVehicles(vehicleId);
+        var startAt = DateTime.Now;
+        startAt = startAt.AddSeconds(-startAt.Second).AddTicks(-(startAt.Ticks % TimeSpan.TicksPerSecond));
         return View(new VehicleBooking
         {
             VehicleID = vehicleId ?? 0,
-            StartAt = DateTime.Now.AddHours(1),
-            EndAt = DateTime.Now.AddHours(2)
+            StartAt = startAt.AddHours(1),
+            EndAt = startAt.AddHours(2)
         });
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(VehicleBooking booking)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Challenge();
+
+        booking.StartAt = new DateTime(booking.StartAt.Year, booking.StartAt.Month, booking.StartAt.Day,
+            booking.StartAt.Hour, booking.StartAt.Minute, 0, booking.StartAt.Kind);
+        booking.EndAt = new DateTime(booking.EndAt.Year, booking.EndAt.Month, booking.EndAt.Day,
+            booking.EndAt.Hour, booking.EndAt.Minute, 0, booking.EndAt.Kind);
+
+        // UserId is supplied from the authenticated identity, never from the form.
+        ModelState.Remove(nameof(booking.UserId));
+        ModelState.Remove(nameof(booking.Vehicle));
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(item =>
             item.VehicleID == booking.VehicleID && item.Status == "Active");
 
@@ -78,7 +105,7 @@ public sealed class BookingsController(ApplicationDbContext context) : Controlle
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var booking = await context.VehicleBookings.FirstOrDefaultAsync(item => item.VehicleBookingID == id);
         if (booking is null) return NotFound();
-        if (!User.IsInRole("Admin") && (booking.UserId != userId || booking.Status != "Pending"))
+        if (!User.IsInRole("Admin") && (booking.UserId != userId || booking.Status == "Cancelled"))
             return Forbid();
 
         booking.Status = "Cancelled";

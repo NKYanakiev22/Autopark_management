@@ -12,6 +12,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<FuelLog> FuelLogs => Set<FuelLog>();
     public DbSet<MaintenanceRecord> MaintenanceRecords => Set<MaintenanceRecord>();
+    public DbSet<VehicleBooking> VehicleBookings => Set<VehicleBooking>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,5 +35,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             table.HasCheckConstraint("CK_FuelLogs_TotalCost", "[TotalCost] > 0");
         });
         builder.Entity<Driver>().HasIndex(driver => driver.Email).IsUnique();
+        builder.Entity<VehicleBooking>()
+            .HasOne(booking => booking.Vehicle)
+            .WithMany()
+            .HasForeignKey(booking => booking.VehicleID)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

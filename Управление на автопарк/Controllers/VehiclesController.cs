@@ -13,6 +13,8 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
     public async Task<IActionResult> Index(string? search)
     {
         var query = context.Vehicles.AsNoTracking();
+        if (!User.IsInRole("Admin"))
+            query = query.Where(vehicle => vehicle.Status == "Active");
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(v => v.Make.Contains(search) || v.Model.Contains(search) || v.RegistrationNumber.Contains(search));
 
@@ -20,9 +22,11 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
         return View(await query.OrderBy(v => v.RegistrationNumber).ToListAsync());
     }
 
+    [Authorize(Roles = "Admin")]
     public IActionResult Create() => View(new Vehicle { ManufactureYear = DateTime.Today.Year });
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(Vehicle vehicle)
     {
         if (await context.Vehicles.AnyAsync(v => v.RegistrationNumber == vehicle.RegistrationNumber))
@@ -41,9 +45,11 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
             .Include(v => v.FuelLogs)
             .Include(v => v.MaintenanceRecords)
             .FirstOrDefaultAsync(v => v.VehicleID == id);
-        return vehicle is null ? NotFound() : View(vehicle);
+        if (vehicle is null || (!User.IsInRole("Admin") && vehicle.Status != "Active")) return NotFound();
+        return View(vehicle);
     }
 
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var vehicle = await context.Vehicles.FindAsync(id);
@@ -51,6 +57,7 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Vehicle vehicle)
     {
         if (id != vehicle.VehicleID) return NotFound();
@@ -64,6 +71,7 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var vehicle = await context.Vehicles.AsNoTracking().FirstOrDefaultAsync(v => v.VehicleID == id);
@@ -71,6 +79,7 @@ public sealed class VehiclesController(ApplicationDbContext context) : Controlle
     }
 
     [HttpPost, ActionName("Delete")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var vehicle = await context.Vehicles.FindAsync(id);

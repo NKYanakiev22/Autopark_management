@@ -28,15 +28,22 @@ else
             <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">D</span>DriveOps</a>
             <div class="side-label">Fleet operations</div>
             <nav class="nav-list" aria-label="Main navigation">
-                <a class="nav-link @(controller == "Vehicles" ? "active" : "")" asp-controller="Vehicles" asp-action="Index"><span class="nav-icon">▣</span>Vehicles</a>
+                <a class="nav-link @(controller == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index"><span class="nav-icon">H</span>Home</a>
+                <a class="nav-link @(controller == "Bookings" ? "active" : "")" asp-controller="Bookings" asp-action="Index"><span class="nav-icon">C</span>Calendar</a>
+                <a class="nav-link @(controller == "Vehicles" ? "active" : "")" asp-controller="Vehicles" asp-action="Index"><span class="nav-icon">V</span>Vehicles</a>
+                @if (User.IsInRole("Admin"))
+                {
                 <a class="nav-link @(controller == "Drivers" ? "active" : "")" asp-controller="Drivers" asp-action="Index"><span class="nav-icon">♙</span>Drivers</a>
                 <a class="nav-link @(controller == "Maintenance" ? "active" : "")" asp-controller="Maintenance" asp-action="Index"><span class="nav-icon">⚒</span>Maintenance</a>
-                <a class="nav-link @(controller == "FuelLogs" ? "active" : "")" asp-controller="FuelLogs" asp-action="Index"><span class="nav-icon">◉</span>Fuel records</a>
+                <a class="nav-link @(controller == "FuelLogs" ? "active" : "")" asp-controller="FuelLogs" asp-action="Index"><span class="nav-icon">E</span>Expenses</a>
+                <a class="nav-link @(controller == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")" asp-controller="Home" asp-action="Reports"><span class="nav-icon">R</span>Reports</a>
+                }
+                <a class="nav-link @(controller == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")" asp-controller="Home" asp-action="Settings"><span class="nav-icon">S</span>Settings</a>
             </nav>
             <div class="side-bottom">
                 <div class="user-card">
                     <div class="avatar">@currentUser.Substring(0, 1).ToUpperInvariant()</div>
-                    <div class="user-copy"><div class="user-name">@currentUser</div><div class="user-role">@(User.IsInRole("Admin") ? "Administrator" : "Fleet team")</div></div>
+                    <div class="user-copy"><div class="user-name">@currentUser</div><div class="user-role">@(User.IsInRole("Admin") ? "Administrator" : "Fleet user")</div></div>
                 </div>
             </div>
         </aside>

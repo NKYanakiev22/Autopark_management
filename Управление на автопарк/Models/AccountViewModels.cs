@@ -33,3 +33,17 @@ public sealed class RegisterViewModel
     [Display(Name = "Confirm password")]
     public string ConfirmPassword { get; set; } = string.Empty;
 }
+
+public sealed class SettingsViewModel
+{
+    [Required, StringLength(100), Display(Name = "Full name")]
+    public string FullName { get; set; } = string.Empty;
+    [Required, EmailAddress]
+    public string Email { get; set; } = string.Empty;
+    [DataType(DataType.Password), Display(Name = "Current password")]
+    public string? CurrentPassword { get; set; }
+    [StringLength(100, MinimumLength = 8), DataType(DataType.Password), Display(Name = "New password")]
+    public string? NewPassword { get; set; }
+    [DataType(DataType.Password), Compare(nameof(NewPassword)), Display(Name = "Confirm new password")]
+    public string? ConfirmNewPassword { get; set; }
+}

@@ -1,0 +1,8 @@
+@{ ViewData["Title"] = "Reports"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet insights</div><h1>Reports</h1><p>Summary of fleet size, availability, maintenance and fuel spend.</p></div></div>
+<div class="detail-grid">
+    <section class="card form-card"><h2>Total vehicles</h2><p class="dashboard-number">@ViewBag.TotalVehicles</p></section>
+    <section class="card form-card"><h2>Active vehicles</h2><p class="dashboard-number">@ViewBag.ActiveVehicles</p></section>
+    <section class="card form-card"><h2>Maintenance records</h2><p class="dashboard-number">@ViewBag.MaintenanceCount</p></section>
+    <section class="card form-card"><h2>Recorded fuel spend</h2><p class="dashboard-number">@(((decimal)ViewBag.FuelSpend).ToString("C"))</p></section>
+</div>

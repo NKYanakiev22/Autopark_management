@@ -1,0 +1,12 @@
+@{ ViewData["Title"] = "Home"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet operations</div><h1>Dashboard</h1><p>At a glance, here's what's happening across your fleet.</p></div></div>
+<div class="detail-grid">
+    <section class="card form-card"><h2>Total vehicles</h2><p class="dashboard-number">@ViewBag.TotalVehicles</p><a asp-controller="Vehicles" asp-action="Index">View vehicles →</a></section>
+    <section class="card form-card"><h2>Active / on road</h2><p class="dashboard-number">@ViewBag.ActiveVehicles</p><a asp-controller="Vehicles" asp-action="Index">Browse fleet →</a></section>
+    <section class="card form-card"><h2>Maintenance</h2><p class="dashboard-number">@ViewBag.MaintenanceCount</p><a asp-controller="Maintenance" asp-action="Index">Maintenance records →</a></section>
+    <section class="card form-card"><h2>Pending bookings</h2><p class="dashboard-number">@ViewBag.PendingBookings</p><a asp-controller="Bookings" asp-action="Index">Open calendar →</a></section>
+</div>
+<section class="card form-card" style="margin-top:16px"><h2>Recent bookings</h2>
+@if (((IReadOnlyList<VehicleBooking>)ViewBag.RecentBookings).Count == 0) { <p>No bookings yet.</p> }
+else { <ul>@foreach (VehicleBooking booking in (IReadOnlyList<VehicleBooking>)ViewBag.RecentBookings) { <li>@booking.Vehicle?.RegistrationNumber · @booking.StartAt.ToString("MMM d, yyyy h:mm tt") — @booking.Status</li> }</ul> }
+</section>

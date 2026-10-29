@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DriveOps.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin")]
 [AutoValidateAntiforgeryToken]
 public sealed class DriversController(ApplicationDbContext context) : Controller
 {
