@@ -1,0 +1,11 @@
+@model Vehicle
+@{ ViewData["Title"] = "Edit vehicle"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet inventory</div><h1>Edit vehicle</h1><p>Update the details for @Model.RegistrationNumber.</p></div></div>
+<section class="card form-card"><form asp-action="Edit" asp-route-id="@Model.VehicleID" method="post"><input asp-for="VehicleID" type="hidden" /><div asp-validation-summary="ModelOnly" class="validation-summary"></div><div class="form-grid">
+    <div class="form-field"><label asp-for="Make"></label><input asp-for="Make" /><span asp-validation-for="Make" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Model"></label><input asp-for="Model" /><span asp-validation-for="Model" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="RegistrationNumber"></label><input asp-for="RegistrationNumber" /><span asp-validation-for="RegistrationNumber" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="ManufactureYear"></label><input asp-for="ManufactureYear" /><span asp-validation-for="ManufactureYear" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="CurrentMileage"></label><input asp-for="CurrentMileage" /><span asp-validation-for="CurrentMileage" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Status"></label><select asp-for="Status"><option>Active</option><option>Maintenance</option><option>Inactive</option></select></div>
+    </div><div class="form-actions"><a class="btn btn-secondary" asp-action="Index">Cancel</a><button class="btn btn-primary" type="submit">Save changes</button></div></form></section>

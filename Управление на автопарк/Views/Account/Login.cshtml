@@ -1,0 +1,24 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+    ViewData["AuthPage"] = true;
+}
+<div class="auth-screen">
+    <section class="auth-form-side">
+        <div class="auth-form">
+            <a class="auth-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">D</span>DriveOps</a>
+            <h1>Welcome back</h1>
+            <p>Sign in to manage your fleet.</p>
+            <form asp-action="Login" method="post">
+                <input asp-for="ReturnUrl" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" autocomplete="username" placeholder="you@company.com" /><span asp-validation-for="Email" class="field-error"></span></div>
+                <div class="form-field"><label asp-for="Password"></label><input asp-for="Password" autocomplete="current-password" placeholder="Your password" /><span asp-validation-for="Password" class="field-error"></span></div>
+                <label class="check-row"><input asp-for="RememberMe" /> @Html.DisplayNameFor(m => m.RememberMe)</label>
+                <button type="submit" class="btn btn-primary auth-submit">Sign in</button>
+            </form>
+            <p class="auth-switch">New to DriveOps? <a asp-action="Register">Create an account</a></p>
+        </div>
+    </section>
+    <aside class="auth-promo"><div class="promo-copy"><div class="eyebrow">Your fleet, in sync</div><h2>Every vehicle.<br />Every driver.<br />One clear view.</h2><p>Keep your fleet moving with simpler scheduling, smarter maintenance and fewer surprises.</p></div></aside>
+</div>

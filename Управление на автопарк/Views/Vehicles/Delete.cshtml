@@ -1,0 +1,4 @@
+@model Vehicle
+@{ ViewData["Title"] = "Delete vehicle"; }
+<div class="page-heading"><div><div class="eyebrow">Fleet inventory</div><h1>Delete vehicle</h1><p>Confirm the record you want to remove.</p></div></div>
+<section class="card form-card"><div class="confirm-box"><h2>@Model.Make @Model.Model</h2><p>Registration: <strong>@Model.RegistrationNumber</strong></p><p>Vehicles with fuel or maintenance history cannot be deleted.</p></div><form asp-action="Delete" asp-route-id="@Model.VehicleID" method="post" class="form-actions"><a class="btn btn-secondary" asp-action="Index">Cancel</a><button class="btn btn-danger" type="submit">Delete vehicle</button></form></section>

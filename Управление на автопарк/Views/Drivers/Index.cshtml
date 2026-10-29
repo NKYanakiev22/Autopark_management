@@ -1,0 +1,7 @@
+@model IReadOnlyList<Driver>
+@{ ViewData["Title"] = "Drivers"; }
+<div class="page-heading"><div><div class="eyebrow">People</div><h1>Drivers</h1><p>Manage driver contact and license details.</p></div><a class="btn btn-primary" asp-action="Create">＋ Add driver</a></div>
+<section class="card"><div class="toolbar"><form asp-action="Index" method="get" class="search-form"><input name="search" value="@ViewData["Search"]" placeholder="Search name, email or license" aria-label="Search drivers" /><button class="btn btn-secondary" type="submit">Search</button></form><span class="record-count">@Model.Count drivers</span></div><div class="table-wrap"><table><thead><tr><th>Driver</th><th>Phone</th><th>License</th><th>Expiry</th><th>Availability</th><th></th></tr></thead><tbody>
+@if (Model.Count == 0) { <tr><td colspan="6" class="empty-state">No drivers found. Add a driver to get started.</td></tr> }
+@foreach (var item in Model) { <tr><td><div class="primary-cell">@item.FullName</div><div class="secondary-cell">@item.Email</div></td><td>@(item.Phone ?? "—")</td><td>@item.LicenseNumber</td><td>@item.LicenseExpiry.ToString("MMM d, yyyy")</td><td><span class="pill">@item.Status</span></td><td class="row-actions"><a asp-action="Details" asp-route-id="@item.DriverID">View</a><a asp-action="Edit" asp-route-id="@item.DriverID">Edit</a><a class="danger-link" asp-action="Delete" asp-route-id="@item.DriverID">Delete</a></td></tr> }
+</tbody></table></div></section>

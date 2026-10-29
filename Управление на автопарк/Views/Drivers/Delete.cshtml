@@ -1,0 +1,3 @@
+@model Driver
+@{ ViewData["Title"] = "Delete driver"; }
+<div class="page-heading"><div><div class="eyebrow">People</div><h1>Delete driver</h1><p>This removes the driver record from your fleet workspace.</p></div></div><section class="card form-card"><div class="confirm-box"><h2>@Model.FullName</h2><p>@Model.Email · License @Model.LicenseNumber</p></div><form asp-action="Delete" asp-route-id="@Model.DriverID" method="post" class="form-actions"><a class="btn btn-secondary" asp-action="Index">Cancel</a><button class="btn btn-danger" type="submit">Delete driver</button></form></section>

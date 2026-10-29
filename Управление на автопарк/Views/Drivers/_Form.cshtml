@@ -1,0 +1,9 @@
+@model Driver
+<div asp-validation-summary="ModelOnly" class="validation-summary"></div><div class="form-grid">
+    <div class="form-field"><label asp-for="FullName"></label><input asp-for="FullName" /><span asp-validation-for="FullName" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" /><span asp-validation-for="Email" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Phone"></label><input asp-for="Phone" /><span asp-validation-for="Phone" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="LicenseNumber"></label><input asp-for="LicenseNumber" /><span asp-validation-for="LicenseNumber" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="LicenseExpiry"></label><input asp-for="LicenseExpiry" type="date" /><span asp-validation-for="LicenseExpiry" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Status"></label><select asp-for="Status"><option>Available</option><option>On Road</option><option>Inactive</option></select></div>
+</div>

@@ -1,0 +1,12 @@
+@model IReadOnlyList<Vehicle>
+@{
+    ViewData["Title"] = "Vehicles";
+}
+<div class="page-heading"><div><div class="eyebrow">Fleet inventory</div><h1>Vehicles</h1><p>@(User.IsInRole("Admin") ? "Manage the vehicles assigned to your fleet." : "Browse active vehicles available for booking.")</p></div>@if (User.IsInRole("Admin")) { <a class="btn btn-primary" asp-action="Create">＋ Add vehicle</a> }</div>
+<section class="card">
+    <div class="toolbar"><form asp-action="Index" method="get" class="search-form"><input name="search" value="@ViewData["Search"]" placeholder="Search registration, make or model" aria-label="Search vehicles" /><button class="btn btn-secondary" type="submit">Search</button></form><span class="record-count">@Model.Count vehicles</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Registration</th><th>Vehicle</th><th>Year</th><th>Mileage</th><th>Status</th><th></th></tr></thead><tbody>
+    @if (Model.Count == 0) { <tr><td colspan="6" class="empty-state">No vehicles found. Add your first vehicle to get started.</td></tr> }
+    @foreach (var item in Model) { <tr><td class="primary-cell">@item.RegistrationNumber</td><td>@item.Make @item.Model</td><td>@item.ManufactureYear</td><td>@item.CurrentMileage.ToString("N0") mi</td><td><span class="pill @(item.Status == "Active" ? "" : "amber")">@item.Status</span></td><td class="row-actions"><a asp-action="Details" asp-route-id="@item.VehicleID">View</a>@if (User.IsInRole("Admin")) { <a asp-action="Edit" asp-route-id="@item.VehicleID">Edit</a><a class="danger-link" asp-action="Delete" asp-route-id="@item.VehicleID">Delete</a> } else { <a asp-controller="Bookings" asp-action="Create" asp-route-vehicleId="@item.VehicleID">Book</a> }</td></tr> }
+    </tbody></table></div>
+</section>

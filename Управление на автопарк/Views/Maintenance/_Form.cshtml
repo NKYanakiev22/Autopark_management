@@ -1,0 +1,9 @@
+@model MaintenanceRecord
+<div asp-validation-summary="ModelOnly" class="validation-summary"></div><div class="form-grid">
+    <div class="form-field"><label asp-for="VehicleID"></label><select asp-for="VehicleID" asp-items="ViewBag.VehicleID"><option value="">Select a vehicle</option></select><span asp-validation-for="VehicleID" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Title"></label><input asp-for="Title" /><span asp-validation-for="Title" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="ServiceDate"></label><input asp-for="ServiceDate" type="date" /><span asp-validation-for="ServiceDate" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Cost"></label><input asp-for="Cost" step="0.01" /><span asp-validation-for="Cost" class="field-error"></span></div>
+    <div class="form-field"><label asp-for="Status"></label><select asp-for="Status"><option>Scheduled</option><option>In progress</option><option>Completed</option><option>Overdue</option></select><span asp-validation-for="Status" class="field-error"></span></div>
+    <div class="form-field full"><label asp-for="Notes"></label><textarea asp-for="Notes" rows="4"></textarea><span asp-validation-for="Notes" class="field-error"></span></div>
+</div>

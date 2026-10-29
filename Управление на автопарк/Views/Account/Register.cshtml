@@ -1,0 +1,24 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create account";
+    ViewData["AuthPage"] = true;
+}
+<div class="auth-screen">
+    <section class="auth-form-side">
+        <div class="auth-form">
+            <a class="auth-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">D</span>DriveOps</a>
+            <h1>Create your account</h1>
+            <p>Set up access to your fleet workspace.</p>
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                <div class="form-field"><label asp-for="FullName"></label><input asp-for="FullName" autocomplete="name" placeholder="Alex Morgan" /><span asp-validation-for="FullName" class="field-error"></span></div>
+                <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" autocomplete="email" placeholder="you@company.com" /><span asp-validation-for="Email" class="field-error"></span></div>
+                <div class="form-field"><label asp-for="Password"></label><input asp-for="Password" autocomplete="new-password" placeholder="At least 8 characters" /><span asp-validation-for="Password" class="field-error"></span></div>
+                <div class="form-field"><label asp-for="ConfirmPassword"></label><input asp-for="ConfirmPassword" autocomplete="new-password" placeholder="Repeat your password" /><span asp-validation-for="ConfirmPassword" class="field-error"></span></div>
+                <button type="submit" class="btn btn-primary auth-submit">Create account</button>
+            </form>
+            <p class="auth-switch">Already have an account? <a asp-action="Login">Sign in</a></p>
+        </div>
+    </section>
+    <aside class="auth-promo"><div class="promo-copy"><div class="eyebrow">Your fleet, in sync</div><h2>Every vehicle.<br />Every driver.<br />One clear view.</h2><p>Keep your fleet moving with simpler scheduling, smarter maintenance and fewer surprises.</p></div></aside>
+</div>
