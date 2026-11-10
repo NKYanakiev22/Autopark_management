@@ -1,8 +1,25 @@
+@model DriveOps.Models.ReportsViewModel
 @{ ViewData["Title"] = "Reports"; }
-<div class="page-heading"><div><div class="eyebrow">Fleet insights</div><h1>Reports</h1><p>Summary of fleet size, availability, maintenance and fuel spend.</p></div></div>
+<div class="page-heading">
+    <div><div class="eyebrow">Fleet insights</div><h1>Reports</h1><p>Operational statistics for your fleet.</p></div>
+    <div class="d-flex gap-2"><a class="btn btn-secondary" asp-action="ExportExcel">Export Excel</a><a class="btn btn-primary" asp-action="ExportPdf">Export PDF</a></div>
+</div>
 <div class="detail-grid">
-    <section class="card form-card"><h2>Total vehicles</h2><p class="dashboard-number">@ViewBag.TotalVehicles</p></section>
-    <section class="card form-card"><h2>Active vehicles</h2><p class="dashboard-number">@ViewBag.ActiveVehicles</p></section>
-    <section class="card form-card"><h2>Maintenance records</h2><p class="dashboard-number">@ViewBag.MaintenanceCount</p></section>
-    <section class="card form-card"><h2>Recorded fuel spend</h2><p class="dashboard-number">@(((decimal)ViewBag.FuelSpend).ToString("C"))</p></section>
+    <section class="card form-card"><h2>Total vehicles</h2><p class="dashboard-number">@Model.TotalVehicles</p></section>
+    <section class="card form-card"><h2>Active vehicles</h2><p class="dashboard-number">@Model.ActiveVehicles</p></section>
+    <section class="card form-card"><h2>Maintenance records</h2><p class="dashboard-number">@Model.MaintenanceCount</p></section>
+    <section class="card form-card"><h2>Recorded fuel spend</h2><p class="dashboard-number">@Model.FuelSpend.ToString("C")</p></section>
+</div>
+<div class="detail-grid" style="margin-top:24px">
+    <section class="card form-card"><h2>Bookings by month</h2>
+        @foreach (var item in Model.MonthlyBookings)
+        {
+            var max = Math.Max(1, Model.MonthlyBookings.Max(x => x.Count));
+            <div style="display:grid;grid-template-columns:90px 1fr 32px;gap:10px;align-items:center;margin:12px 0"><span>@item.Month</span><div style="height:10px;background:#e9eff2;border-radius:8px"><div style="height:10px;width:@(item.Count * 100 / max)% ;background:#08bec5;border-radius:8px"></div></div><strong>@item.Count</strong></div>
+        }
+    </section>
+    <section class="card form-card"><h2>Most requested services</h2>
+        @if (Model.PopularServices.Count == 0) { <p>No maintenance records yet.</p> }
+        else { <table class="table"><thead><tr><th>Service / issue</th><th>Records</th></tr></thead><tbody>@foreach (var item in Model.PopularServices) { <tr><td>@item.Service</td><td>@item.Count</td></tr> }</tbody></table> }
+    </section>
 </div>

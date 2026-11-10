@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using ClosedXML.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace DriveOps.Controllers;
 
@@ -26,11 +30,72 @@ public sealed class HomeController(ApplicationDbContext context, UserManager<Ide
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Reports()
     {
-        ViewBag.TotalVehicles = await context.Vehicles.CountAsync();
-        ViewBag.ActiveVehicles = await context.Vehicles.CountAsync(vehicle => vehicle.Status == "Active");
-        ViewBag.MaintenanceCount = await context.MaintenanceRecords.CountAsync();
-        ViewBag.FuelSpend = await context.FuelLogs.SumAsync(log => (decimal?)log.TotalCost) ?? 0m;
-        return View();
+        return View(await BuildReportsAsync());
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ExportExcel()
+    {
+        var report = await BuildReportsAsync();
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add("Fleet report");
+        sheet.Cell(1, 1).Value = "Fleet report";
+        sheet.Cell(2, 1).Value = "Total vehicles"; sheet.Cell(2, 2).Value = report.TotalVehicles;
+        sheet.Cell(3, 1).Value = "Active vehicles"; sheet.Cell(3, 2).Value = report.ActiveVehicles;
+        sheet.Cell(4, 1).Value = "Maintenance records"; sheet.Cell(4, 2).Value = report.MaintenanceCount;
+        sheet.Cell(5, 1).Value = "Fuel spend"; sheet.Cell(5, 2).Value = (double)report.FuelSpend;
+        var row = 7;
+        sheet.Cell(row, 1).Value = "Bookings by month"; sheet.Cell(row, 2).Value = "Count";
+        foreach (var item in report.MonthlyBookings) { row++; sheet.Cell(row, 1).Value = item.Month; sheet.Cell(row, 2).Value = item.Count; }
+        row += 2; sheet.Cell(row, 1).Value = "Popular services"; sheet.Cell(row, 2).Value = "Count";
+        foreach (var item in report.PopularServices) { row++; sheet.Cell(row, 1).Value = item.Service; sheet.Cell(row, 2).Value = item.Count; }
+        sheet.Columns().AdjustToContents();
+        using var stream = new MemoryStream(); workbook.SaveAs(stream);
+        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "fleet-report.xlsx");
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ExportPdf()
+    {
+        var report = await BuildReportsAsync();
+        QuestPDF.Settings.License = LicenseType.Community;
+        var bytes = Document.Create(container => container.Page(page =>
+        {
+            page.Margin(36); page.Header().Text("Fleet operations report").FontSize(20).Bold();
+            page.Content().Column(column =>
+            {
+                column.Item().Text($"Vehicles: {report.TotalVehicles} total, {report.ActiveVehicles} active");
+                column.Item().Text($"Maintenance records: {report.MaintenanceCount}");
+                column.Item().Text($"Fuel spend: {report.FuelSpend:C}");
+                column.Item().PaddingTop(12).Text("Bookings by month").Bold();
+                foreach (var item in report.MonthlyBookings) column.Item().Text($"{item.Month}: {item.Count}");
+                column.Item().PaddingTop(12).Text("Popular services").Bold();
+                foreach (var item in report.PopularServices) column.Item().Text($"{item.Service}: {item.Count}");
+            });
+            page.Footer().AlignRight().Text($"Generated {DateTime.Now:dd.MM.yyyy HH:mm}");
+        })).GeneratePdf();
+        return File(bytes, "application/pdf", "fleet-report.pdf");
+    }
+
+    private async Task<ReportsViewModel> BuildReportsAsync()
+    {
+        var bookings = await context.VehicleBookings.AsNoTracking().Select(item => item.StartAt).ToListAsync();
+        var now = DateTime.UtcNow;
+        var monthly = Enumerable.Range(0, 12).Select(offset => new DateTime(now.Year, now.Month, 1).AddMonths(-11 + offset))
+            .Select(month => new MonthlyBookingReport(month.ToString("MMM yyyy"), bookings.Count(date => date.Year == month.Year && date.Month == month.Month))).ToList();
+        // Aggregate in SQL, then materialize before ordering to stay compatible with SQLite translation.
+        var serviceCounts = await context.MaintenanceRecords.AsNoTracking().GroupBy(item => item.Title)
+            .Select(group => new { Service = group.Key, Count = group.Count() }).ToListAsync();
+        var services = serviceCounts.OrderByDescending(item => item.Count).Take(5)
+            .Select(item => new ServiceReport(item.Service, item.Count)).ToList();
+        return new ReportsViewModel
+        {
+            TotalVehicles = await context.Vehicles.CountAsync(),
+            ActiveVehicles = await context.Vehicles.CountAsync(vehicle => vehicle.Status == "Active"),
+            MaintenanceCount = await context.MaintenanceRecords.CountAsync(),
+            FuelSpend = await context.FuelLogs.SumAsync(log => (decimal?)log.TotalCost) ?? 0m,
+            MonthlyBookings = monthly, PopularServices = services
+        };
     }
 
     [Authorize]
